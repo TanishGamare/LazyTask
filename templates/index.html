@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lazytask — Cozy Todo & Focus</title>
+  <meta name="description" content="A cozy task management and pomodoro timer app">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="/static/css/themes.css">
+  <link rel="stylesheet" href="/static/css/main.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+</head>
+<body data-theme="earth">
+  <div class="app-container">
+    
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+    
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">☕</span>
+        <span>Lazy<span class="logo-accent">task</span></span>
+      </div>
+      
+      <div class="header-nav">
+        <button class="nav-btn active" data-page="board" onclick="goPage('board')">
+          <span class="icon">📋</span>
+          Board
+        </button>
+        <button class="nav-btn" data-page="focus" onclick="goPage('focus')">
+          <span class="icon">🎯</span>
+          Focus
+        </button>
+        <button class="nav-btn" onclick="openSettingsModal()" title="Settings">
+          <span class="icon">⚙️</span>
+          Settings
+        </button>
+        
+        <div class="theme-switcher">
+          <button class="theme-btn active" data-theme="earth" onclick="applyTheme('earth')" title="Earth"></button>
+          <button class="theme-btn" data-theme="ocean" onclick="applyTheme('ocean')" title="Ocean"></button>
+          <button class="theme-btn" data-theme="coffee" onclick="applyTheme('coffee')" title="Coffee"></button>
+          <button class="theme-btn" data-theme="twilight" onclick="applyTheme('twilight')" title="Twilight"></button>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Board Page -->
+    <main class="page active" id="board-page">
+      
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-label">Status</div>
+          <button class="filter-btn active" data-status-filter="all" onclick="setStatusFilter('all')">
+            All Tasks <span class="count">0</span>
+          </button>
+          <button class="filter-btn" data-status-filter="todo" onclick="setStatusFilter('todo')">
+            To Do <span class="count">0</span>
+          </button>
+          <button class="filter-btn" data-status-filter="inprogress" onclick="setStatusFilter('inprogress')">
+            In Progress <span class="count">0</span>
+          </button>
+          <button class="filter-btn" data-status-filter="done" onclick="setStatusFilter('done')">
+            Done <span class="count">0</span>
+          </button>
+        </div>
+        
+        <div class="sidebar-section">
+          <div class="sidebar-label">Priority</div>
+          <button class="filter-btn active" data-priority-filter="all" onclick="setPriorityFilter('all')">All</button>
+          <button class="filter-btn" data-priority-filter="high" onclick="setPriorityFilter('high')">High</button>
+          <button class="filter-btn" data-priority-filter="medium" onclick="setPriorityFilter('medium')">Medium</button>
+          <button class="filter-btn" data-priority-filter="low" onclick="setPriorityFilter('low')">Low</button>
+        </div>
+        
+        <div class="sidebar-section">
+          <div class="sidebar-label">Tags</div>
+          <div class="tag-list" id="tag-list"></div>
+          <div class="add-tag-row">
+            <input type="text" class="add-tag-input" id="new-tag-input" placeholder="Add tag..." maxlength="20">
+            <button class="add-tag-btn" onclick="addTag()">+</button>
+          </div>
+        </div>
+        
+        <div class="sidebar-section">
+          <div class="sidebar-label">Sort By</div>
+          <select class="sort-select" id="sort-select">
+            <option value="created">Date Created</option>
+            <option value="due">Due Date</option>
+            <option value="priority">Priority</option>
+            <option value="title">Title A–Z</option>
+          </select>
+        </div>
+      </aside>
+      
+      <!-- Sidebar peek indicator for compact mode -->
+      <div class="sidebar-peek-indicator" onclick="peekSidebar()">◀</div>
+      
+      <!-- Main Board Area -->
+      <div class="board-main">
+        <div class="board-header">
+          <h1 class="board-title" id="board-title">All Tasks</h1>
+          <button class="add-task-btn" onclick="openTaskModal()">
+            <span class="icon">+</span>
+            New Task
+          </button>
+        </div>
+        
+        <div class="search-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-bar" id="search-input" placeholder="Search tasks...">
+        </div>
+        
+        <div class="view-toggle">
+          <button class="view-btn active" id="view-kanban" onclick="setViewMode('kanban')">Kanban</button>
+          <button class="view-btn" id="view-list" onclick="setViewMode('list')">List</button>
+        </div>
+        
+        <!-- Kanban Board -->
+        <div class="kanban-board" id="kanban-board">
+          <div class="kanban-column column-todo">
+            <div class="column-header">
+              <div class="column-title"><span class="dot"></span> To Do</div>
+              <span class="column-count" id="cnt-todo">0</span>
+            </div>
+            <div class="column-body" id="col-todo"></div>
+          </div>
+          
+          <div class="kanban-column column-inprogress">
+            <div class="column-header">
+              <div class="column-title"><span class="dot"></span> In Progress</div>
+              <span class="column-count" id="cnt-inprogress">0</span>
+            </div>
+            <div class="column-body" id="col-inprogress"></div>
+          </div>
+          
+          <div class="kanban-column column-done">
+            <div class="column-header">
+              <div class="column-title"><span class="dot"></span> Done</div>
+              <span class="column-count" id="cnt-done">0</span>
+            </div>
+            <div class="column-body" id="col-done"></div>
+          </div>
+        </div>
+        
+        <!-- List View -->
+        <div class="list-view" id="list-view"></div>
+      </div>
+    </main>
+    
+    <!-- Focus Page -->
+    <main class="page" id="focus-page">
+      <!-- Garden Canvas -->
+      <canvas id="garden-canvas"></canvas>
+      
+      <!-- Garden Stats -->
+      <div class="garden-stats">
+        <div class="garden-stat">
+          <span class="icon">🌱</span>
+          <span>Level <span class="value" id="garden-level">1</span></span>
+        </div>
+        <div class="garden-stat">
+          <span class="icon">🍅</span>
+          <span><span class="value" id="total-sessions">0</span> sessions</span>
+        </div>
+      </div>
+      
+      <!-- Linked Task Panel -->
+      <div class="linked-task-panel hidden" id="linked-task-panel">
+        <div class="no-linked-task">Link a task via ▶ Focus on the board</div>
+      </div>
+      
+      <!-- Settings Button -->
+      <button class="pomo-settings-btn" onclick="openSettingsModal()" title="Timer Settings">
+        ⚙️
+      </button>
+      
+      <!-- Pomodoro Container -->
+      <div class="focus-container">
+        <div class="pomo-container">
+          <div class="pomo-phase" id="pomo-phase">Focus</div>
+          <div class="pomo-timer" id="pomo-timer">25:00</div>
+          
+          <div class="pomo-progress">
+            <div class="pomo-progress-fill focus" id="pomo-progress-fill"></div>
+          </div>
+          
+          <div class="pomo-controls">
+            <button class="pomo-btn" onclick="resetPomo()" title="Reset">↺</button>
+            <button class="pomo-btn primary" id="pomo-play" onclick="togglePomo()">▶</button>
+            <button class="pomo-btn" onclick="skipPomo()" title="Skip">⏭</button>
+          </div>
+          
+          <div class="pomo-sessions" id="pomo-sessions"></div>
+        </div>
+      </div>
+    </main>
+    
+  </div>
+  
+  <!-- Task Modal -->
+  <div class="modal-overlay" id="task-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">New Task</h2>
+        <button class="modal-close" onclick="closeTaskModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label class="field-label">Title *</label>
+          <input type="text" class="field-input" id="task-title" placeholder="What needs to be done?">
+        </div>
+        
+        <div class="field">
+          <label class="field-label">Description</label>
+          <textarea class="field-textarea" id="task-desc" placeholder="Details, notes, links..."></textarea>
+        </div>
+        
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label">Status</label>
+            <select class="field-select" id="task-status">
+              <option value="todo">To Do</option>
+              <option value="inprogress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Priority</label>
+            <select class="field-select" id="task-priority">
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="field">
+          <label class="field-label">Due Date</label>
+          <input type="date" class="field-input" id="task-due">
+        </div>
+        
+        <div class="field">
+          <label class="field-label">Tags</label>
+          <div class="modal-tags" id="modal-tag-list"></div>
+        </div>
+        
+        <div class="field">
+          <label class="field-label">Subtasks</label>
+          <div class="subtask-list-edit" id="subtask-edit-list"></div>
+          <button type="button" class="add-subtask-btn" onclick="addSubtaskField()">+ Add Subtask</button>
+        </div>
+        
+        <button class="save-btn" onclick="saveTask()">Save Task</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Settings</h2>
+        <button class="modal-close" onclick="closeSettingsModal()">✕</button>
+      </div>
+      
+      <!-- Settings Tabs -->
+      <div class="settings-tabs">
+        <button class="settings-tab active" data-tab="general" onclick="switchSettingsTab('general')">General</button>
+        <button class="settings-tab" data-tab="timer" onclick="switchSettingsTab('timer')">Timer</button>
+        <button class="settings-tab" data-tab="garden" onclick="switchSettingsTab('garden')">Garden</button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- General Settings Panel -->
+        <div class="settings-panel active" id="settings-general">
+          <div class="settings-section">
+            <div class="settings-section-title">Appearance</div>
+            <div class="settings-field">
+              <span class="settings-label">Compact Sidebar</span>
+              <div class="toggle-switch" id="toggle-compact" onclick="toggleCompactMode()"></div>
+            </div>
+          </div>
+          
+          <div class="settings-section">
+            <div class="settings-section-title">Theme</div>
+            <div class="theme-grid">
+              <button class="theme-option" data-theme="earth" onclick="selectTheme('earth')">
+                <div class="theme-option-swatch" data-theme="earth"></div>
+                <div class="theme-option-info">
+                  <div class="theme-option-name">Earth</div>
+                  <div class="theme-option-desc">Warm browns & sage</div>
+                </div>
+              </button>
+              <button class="theme-option" data-theme="ocean" onclick="selectTheme('ocean')">
+                <div class="theme-option-swatch" data-theme="ocean"></div>
+                <div class="theme-option-info">
+                  <div class="theme-option-name">Ocean</div>
+                  <div class="theme-option-desc">Calm blues & sand</div>
+                </div>
+              </button>
+              <button class="theme-option" data-theme="coffee" onclick="selectTheme('coffee')">
+                <div class="theme-option-swatch" data-theme="coffee"></div>
+                <div class="theme-option-info">
+                  <div class="theme-option-name">Coffee</div>
+                  <div class="theme-option-desc">Cream & mocha</div>
+                </div>
+              </button>
+              <button class="theme-option" data-theme="twilight" onclick="selectTheme('twilight')">
+                <div class="theme-option-swatch" data-theme="twilight"></div>
+                <div class="theme-option-info">
+                  <div class="theme-option-name">Twilight</div>
+                  <div class="theme-option-desc">Dark purple & pink</div>
+                </div>
+              </button>
+            </div>
+          </div>
+          
+          <div class="settings-section">
+            <div class="settings-section-title">Notifications</div>
+            <div class="settings-field">
+              <span class="settings-label">Desktop Notifications</span>
+              <div class="toggle-switch" id="toggle-notifications" onclick="toggleNotifications()"></div>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Sound Effects</span>
+              <div class="toggle-switch" id="toggle-sounds" onclick="toggleSounds()"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Timer Settings Panel -->
+        <div class="settings-panel" id="settings-timer">
+          <div class="settings-section">
+            <div class="settings-section-title">Focus Session</div>
+            <div class="settings-field">
+              <span class="settings-label">Focus Duration (min)</span>
+              <input type="number" class="settings-input field-input" id="settings-focus" min="1" max="120" value="25">
+            </div>
+          </div>
+          
+          <div class="settings-section">
+            <div class="settings-section-title">Breaks</div>
+            <div class="settings-field">
+              <span class="settings-label">Short Break (min)</span>
+              <input type="number" class="settings-input field-input" id="settings-short" min="1" max="30" value="5">
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Long Break (min)</span>
+              <input type="number" class="settings-input field-input" id="settings-long" min="1" max="60" value="15">
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Sessions before Long Break</span>
+              <input type="number" class="settings-input field-input" id="settings-sessions" min="1" max="10" value="4">
+            </div>
+          </div>
+          
+          <div class="settings-section">
+            <div class="settings-section-title">Behavior</div>
+            <div class="settings-field">
+              <span class="settings-label">Auto-start Breaks</span>
+              <div class="toggle-switch" id="toggle-autobreak" onclick="toggleAutoBreak()"></div>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Auto-start Focus</span>
+              <div class="toggle-switch" id="toggle-autofocus" onclick="toggleAutoFocus()"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Garden Settings Panel -->
+        <div class="settings-panel" id="settings-garden">
+          <div class="settings-section">
+            <div class="settings-section-title">Your Garden</div>
+            <div class="garden-preview" id="garden-preview">
+              🌱 Level <span id="preview-level">1</span> • <span id="preview-sessions">0</span> sessions completed
+            </div>
+          </div>
+          
+          <div class="settings-section">
+            <div class="settings-section-title">Garden Options</div>
+            <div class="settings-field">
+              <span class="settings-label">Show Garden in Focus Mode</span>
+              <div class="toggle-switch active" id="toggle-garden" onclick="toggleGardenEnabled()"></div>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Animated Clouds</span>
+              <div class="toggle-switch active" id="toggle-clouds" onclick="toggleClouds()"></div>
+            </div>
+            <div class="settings-field">
+              <span class="settings-label">Animated Animals</span>
+              <div class="toggle-switch active" id="toggle-animals" onclick="toggleAnimals()"></div>
+            </div>
+          </div>
+          
+          <div class="settings-section">
+            <div class="settings-section-title">Progress</div>
+            <div class="settings-field">
+              <span class="settings-label">Reset Garden Progress</span>
+              <button class="garden-reset-btn" onclick="resetGardenProgress()">Reset to Level 1</button>
+            </div>
+          </div>
+        </div>
+        
+        <button class="save-btn" onclick="saveAllSettings()">Save Settings</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/static/js/garden.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

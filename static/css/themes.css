@@ -1,0 +1,212 @@
+/* 
+ * Lazytask Themes
+ * 4 soothing color palettes for a cozy experience
+ */
+
+/* ========== EARTH - Soft earthy tones ========== */
+[data-theme="earth"] {
+  --bg-primary: #2d2a24;
+  --bg-secondary: #3a3631;
+  --bg-tertiary: #4a453e;
+  --bg-card: #35322c;
+  
+  --text-primary: #e8e2d9;
+  --text-secondary: #c4bbb0;
+  --text-muted: #8a8277;
+  
+  --accent: #b08968;
+  --accent-hover: #c9a27c;
+  --accent-subtle: rgba(176, 137, 104, 0.15);
+  
+  --success: #7d9a6f;
+  --warning: #d4a55a;
+  --danger: #c87070;
+  
+  --border: #4a453e;
+  --border-subtle: #3f3b35;
+  
+  --shadow: rgba(0, 0, 0, 0.3);
+  --glow: rgba(176, 137, 104, 0.2);
+  
+  --header-bg: #262420;
+  --header-text: #e8e2d9;
+  
+  --btn-primary-bg: #b08968;
+  --btn-primary-text: #1a1916;
+  
+  --focus-ring: rgba(176, 137, 104, 0.4);
+}
+
+/* ========== OCEAN - Calm blues and sandy neutrals ========== */
+[data-theme="ocean"] {
+  --bg-primary: #1e2a32;
+  --bg-secondary: #253540;
+  --bg-tertiary: #2d404d;
+  --bg-card: #233038;
+  
+  --text-primary: #e4e9ec;
+  --text-secondary: #b8c5ce;
+  --text-muted: #7a8f9c;
+  
+  --accent: #6ba3be;
+  --accent-hover: #85b7cf;
+  --accent-subtle: rgba(107, 163, 190, 0.15);
+  
+  --success: #6b9e8a;
+  --warning: #c9a86c;
+  --danger: #c27878;
+  
+  --border: #3a4d58;
+  --border-subtle: #2f414c;
+  
+  --shadow: rgba(0, 0, 0, 0.35);
+  --glow: rgba(107, 163, 190, 0.2);
+  
+  --header-bg: #182228;
+  --header-text: #e4e9ec;
+  
+  --btn-primary-bg: #6ba3be;
+  --btn-primary-text: #0f171c;
+  
+  --focus-ring: rgba(107, 163, 190, 0.4);
+}
+
+/* ========== COFFEE - Cozy coffee shop palette ========== */
+[data-theme="coffee"] {
+  --bg-primary: #f5f0e8;
+  --bg-secondary: #ebe5db;
+  --bg-tertiary: #dfd8cc;
+  --bg-card: #faf7f2;
+  
+  --text-primary: #3d3229;
+  --text-secondary: #5c4f43;
+  --text-muted: #8a7b6c;
+  
+  --accent: #7d6249;
+  --accent-hover: #966f52;
+  --accent-subtle: rgba(125, 98, 73, 0.12);
+  
+  --success: #5a7a5e;
+  --warning: #b8914e;
+  --danger: #a65d5d;
+  
+  --border: #d4ccc0;
+  --border-subtle: #e5ded4;
+  
+  --shadow: rgba(61, 50, 41, 0.1);
+  --glow: rgba(125, 98, 73, 0.15);
+  
+  --header-bg: #3d3229;
+  --header-text: #f5f0e8;
+  
+  --btn-primary-bg: #7d6249;
+  --btn-primary-text: #faf7f2;
+  
+  --focus-ring: rgba(125, 98, 73, 0.3);
+}
+
+/* ========== TWILIGHT - Dark with soft purple/pink ========== */
+[data-theme="twilight"] {
+  --bg-primary: #1a1824;
+  --bg-secondary: #22202e;
+  --bg-tertiary: #2a2838;
+  --bg-card: #1e1c28;
+  
+  --text-primary: #e8e4f0;
+  --text-secondary: #c4bdd4;
+  --text-muted: #7d7594;
+  
+  --accent: #a78bba;
+  --accent-hover: #bda0ce;
+  --accent-subtle: rgba(167, 139, 186, 0.15);
+  
+  --success: #7aa085;
+  --warning: #d4b06a;
+  --danger: #c47a7a;
+  
+  --border: #3a3648;
+  --border-subtle: #2e2a3a;
+  
+  --shadow: rgba(0, 0, 0, 0.4);
+  --glow: rgba(167, 139, 186, 0.2);
+  
+  --header-bg: #14121c;
+  --header-text: #e8e4f0;
+  
+  --btn-primary-bg: #a78bba;
+  --btn-primary-text: #0f0e14;
+  
+  --focus-ring: rgba(167, 139, 186, 0.4);
+}
+
+/* ========== BASE STYLES ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background 0.4s ease, color 0.3s ease;
+  line-height: 1.6;
+}
+
+/* Smooth transitions for theme changes */
+*, *::before, *::after {
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Focus visible for accessibility */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Selection */
+::selection {
+  background: var(--accent);
+  color: var(--btn-primary-text);
+}
+
+/* Button reset */
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+/* Input reset */
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
