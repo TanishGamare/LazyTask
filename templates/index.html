@@ -103,8 +103,11 @@
         </div>
       </aside>
       
-      <!-- Sidebar peek indicator for compact mode -->
-      <div class="sidebar-peek-indicator" onclick="peekSidebar()">◀</div>
+      <!-- Sidebar toggle button for compact mode -->
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <span class="toggle-icon">☰</span>
+        <span class="toggle-text">FILTERS</span>
+      </button>
       
       <!-- Main Board Area -->
       <div class="board-main">
@@ -175,9 +178,17 @@
         </div>
       </div>
       
-      <!-- Linked Task Panel -->
+      <!-- Linked Task Panel - Draggable -->
       <div class="linked-task-panel hidden" id="linked-task-panel">
-        <div class="no-linked-task">Link a task via ▶ Focus on the board</div>
+        <div class="linked-task-header" id="linked-task-header">
+          <span class="linked-task-header-title">
+            <span class="drag-hint">⋮⋮</span> Linked Task
+          </span>
+          <button class="linked-task-close" onclick="unlinkTask()" title="Unlink">✕</button>
+        </div>
+        <div class="linked-task-body" id="linked-task-body">
+          <div class="no-linked-task">Link a task via ▶ Focus on the board</div>
+        </div>
       </div>
       
       <!-- Settings Button -->

@@ -87,6 +87,7 @@ async function init() {
   initPomoTimer();
   renderAll();
   setupEventListeners();
+  initDraggablePanel();
   requestNotificationPermission();
 }
 
@@ -672,7 +673,8 @@ async function toggleFocusLink(taskId) {
 
 function renderLinkedTaskPanel() {
   const panel = document.getElementById('linked-task-panel');
-  if (!panel) return;
+  const body = document.getElementById('linked-task-body');
+  if (!panel || !body) return;
   
   const task = State.settings.linked_task_id 
     ? State.tasks.find(t => t.id == State.settings.linked_task_id)
@@ -680,7 +682,7 @@ function renderLinkedTaskPanel() {
   
   if (!task) {
     panel.classList.add('hidden');
-    panel.innerHTML = '<div class="no-linked-task">Link a task via ▶ Focus on the board</div>';
+    body.innerHTML = '<div class="no-linked-task">Link a task via ▶ Focus on the board</div>';
     return;
   }
   
@@ -694,21 +696,27 @@ function renderLinkedTaskPanel() {
           <span class="linked-subtask-text">${esc(sub.text)}</span>
         </div>
       `).join('')
-    : '<div class="no-linked-task">No subtasks — edit task to add some</div>';
+    : '<div class="no-linked-task">No subtasks</div>';
   
-  panel.innerHTML = `
+  body.innerHTML = `
     <div class="linked-task-title">${esc(task.title)}</div>
     ${progress ? `
       <div class="linked-task-progress">
         <div class="progress-bar">
           <div class="progress-fill" style="width: ${progress.percent}%"></div>
         </div>
-        <div class="progress-label"><span>${progress.done}/${progress.total}</span> subtasks — ${progress.percent}%</div>
+        <div class="progress-text">${progress.done}/${progress.total} subtasks</div>
       </div>
     ` : ''}
     <div class="linked-subtasks">${subtasksHtml}</div>
-    <button class="unlink-btn" onclick="toggleFocusLink(${task.id})">Unlink Task</button>
   `;
+}
+
+function unlinkTask() {
+  const linkedId = State.settings.linked_task_id;
+  if (linkedId) {
+    toggleFocusLink(parseInt(linkedId));
+  }
 }
 
 async function toggleLinkedSubtask(taskId, subtaskId) {
@@ -994,7 +1002,7 @@ function applyCompactMode() {
   document.body.classList.toggle('compact-sidebar', isCompact);
 }
 
-function peekSidebar() {
+function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
   sidebar.classList.add('peek');
   
@@ -1004,6 +1012,55 @@ function peekSidebar() {
     sidebar.removeEventListener('mouseleave', removePeek);
   };
   sidebar.addEventListener('mouseleave', removePeek);
+}
+
+// ============= DRAGGABLE LINKED TASK PANEL =============
+function initDraggablePanel() {
+  const panel = document.getElementById('linked-task-panel');
+  const header = document.getElementById('linked-task-header');
+  if (!panel || !header) return;
+  
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+  
+  header.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.linked-task-close')) return;
+    
+    isDragging = true;
+    panel.classList.add('dragging');
+    
+    const rect = panel.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    
+    e.preventDefault();
+  });
+  
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    
+    const page = document.getElementById('focus-page');
+    const pageRect = page.getBoundingClientRect();
+    
+    let newX = e.clientX - offsetX - pageRect.left;
+    let newY = e.clientY - offsetY - pageRect.top;
+    
+    // Constrain to page bounds
+    newX = Math.max(0, Math.min(newX, pageRect.width - panel.offsetWidth));
+    newY = Math.max(0, Math.min(newY, pageRect.height - panel.offsetHeight));
+    
+    panel.style.left = newX + 'px';
+    panel.style.top = newY + 'px';
+    panel.style.right = 'auto';
+  });
+  
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      panel.classList.remove('dragging');
+    }
+  });
 }
 
 async function saveAllSettings() {
